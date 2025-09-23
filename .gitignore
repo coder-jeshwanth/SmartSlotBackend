@@ -67,3 +67,6 @@ build/
 # Testing
 coverage/
 .nyc_output/
+
+# Vercel
+.vercel

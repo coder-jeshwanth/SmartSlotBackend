@@ -372,6 +372,62 @@ src/
 - Monitor and log errors
 - Regular security updates
 
+## 🌐 Vercel Deployment
+
+This API is configured for seamless deployment on Vercel:
+
+### Prerequisites
+- Vercel account
+- MongoDB database (MongoDB Atlas recommended)
+- GitHub repository
+
+### Deployment Steps
+
+1. **Install Vercel CLI** (if not already installed)
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Set Environment Variables**
+   
+   Create environment variables in Vercel dashboard or using CLI:
+   ```bash
+   vercel env add MONGODB_URI
+   vercel env add JWT_SECRET
+   vercel env add CORS_ORIGIN
+   ```
+   
+   Required environment variables:
+   - `MONGODB_URI`: Your MongoDB connection string
+   - `JWT_SECRET`: Strong secret key for JWT tokens
+   - `CORS_ORIGIN`: Your frontend domain (e.g., https://yourdomain.com)
+
+3. **Deploy to Vercel**
+   ```bash
+   # Login to Vercel (if not already logged in)
+   vercel login
+   
+   # Deploy
+   vercel --prod
+   ```
+
+4. **Alternative: GitHub Integration**
+   - Push your code to GitHub
+   - Connect your repository to Vercel
+   - Set environment variables in Vercel dashboard
+   - Vercel will automatically deploy on every push
+
+### Configuration Files
+- `vercel.json`: Vercel deployment configuration
+- `api/index.js`: Serverless function entry point
+- `.env.example`: Environment variables template
+
+### MongoDB Setup
+For production, use MongoDB Atlas:
+1. Create cluster at [MongoDB Atlas](https://cloud.mongodb.com)
+2. Get connection string
+3. Add to VERCEL_ENV as `MONGODB_URI`
+
 ## 🧪 Testing
 
 ### Manual Testing
