@@ -1,7 +1,17 @@
 {
+  "version": 2,
   "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@2.0.0"
+    "api/index.js": {
+      "runtime": "nodejs18.x"
     }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
   }
 }
