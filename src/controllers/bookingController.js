@@ -470,57 +470,106 @@ class BookingController {
   static createSimpleBooking = asyncHandler(async (req, res) => {
     const { username, email, phone, notes, date, time } = req.body;
 
-    // Basic validation
+    // Note: Basic validation is handled by middleware, but we keep these checks for safety
+    
+    // Basic required field validation
     if (!username || !email || !phone || !date || !time) {
-      return respondWithError(res, 'Username, email, phone, date, and time are required', 400);
+      return respondWithError(res, 'Missing required fields', 400, {
+        errors: [
+          { field: 'username', message: 'Username is required', required: true },
+          { field: 'email', message: 'Email is required', required: true },
+          { field: 'phone', message: 'Phone number is required', required: true },
+          { field: 'date', message: 'Date is required', required: true },
+          { field: 'time', message: 'Time is required', required: true }
+        ].filter(err => !req.body[err.field.replace('time', 'time')])
+      });
     }
 
     // Validate email format
     const emailValidation = Validators.validateEmail(email);
     if (!emailValidation.isValid) {
-      return respondWithError(res, 'Invalid email format', 400);
+      return respondWithError(res, 'Invalid email format', 400, {
+        field: 'email',
+        message: 'Please provide a valid email address',
+        value: email
+      });
     }
 
     // Validate phone format
     const phoneValidation = Validators.validatePhone(phone);
     if (!phoneValidation.isValid) {
-      return respondWithError(res, 'Invalid phone number format', 400);
+      return respondWithError(res, 'Invalid phone number format', 400, {
+        field: 'phone',
+        message: 'Please provide a valid phone number in international format',
+        value: phone
+      });
     }
 
     // Validate date format (YYYY-MM-DD)
     if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return respondWithError(res, 'Date must be in YYYY-MM-DD format', 400);
+      return respondWithError(res, 'Invalid date format', 400, {
+        field: 'date',
+        message: 'Date must be in YYYY-MM-DD format (e.g., 2025-09-25)',
+        value: date
+      });
     }
 
     // Validate time format (HH:MM)
     if (!time.match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)) {
-      return respondWithError(res, 'Time must be in HH:MM format', 400);
+      return respondWithError(res, 'Invalid time format', 400, {
+        field: 'time',
+        message: 'Time must be in HH:MM format (e.g., 14:30)',
+        value: time
+      });
     }
 
     // Check if date is in the past
     if (DateUtils.isPastDate(date)) {
-      return respondWithError(res, 'Cannot book dates in the past', 400);
+      return respondWithError(res, 'Cannot book dates in the past', 400, {
+        field: 'date',
+        message: 'Selected date has already passed. Please choose a future date.',
+        value: date
+      });
     }
 
     // Check if time slot is in the past for today
     if (DateUtils.isPastTimeSlot(date, time)) {
-      return respondWithError(res, 'Cannot book past time slots', 400);
+      return respondWithError(res, 'Cannot book past time slots', 400, {
+        field: 'time',
+        message: 'Selected time has already passed for today. Please choose a future time.',
+        value: time,
+        date: date
+      });
     }
 
     // Check if date is within booking limit
     if (!DateUtils.isWithinBookingLimit(date)) {
-      return respondWithError(res, 'Date is beyond the maximum advance booking period', 400);
+      return respondWithError(res, 'Date is beyond booking limit', 400, {
+        field: 'date',
+        message: 'Selected date is beyond the maximum advance booking period. Please choose a date within the allowed range.',
+        value: date
+      });
     }
 
     // Check if date is available
     const availableDate = await AvailableDate.findOne({ date, isActive: true });
     if (!availableDate) {
-      return respondWithError(res, 'Selected date is not available for booking', 400);
+      return respondWithError(res, 'Date not available', 400, {
+        field: 'date',
+        message: 'Selected date is not available for booking. Please choose from available dates.',
+        value: date
+      });
     }
 
     // Validate time slot for this date
     if (!availableDate.isValidTimeSlot(time)) {
-      return respondWithError(res, 'Invalid time slot for the selected date', 400);
+      return respondWithError(res, 'Invalid time slot', 400, {
+        field: 'time',
+        message: 'Selected time slot is not available for the chosen date. Please select from available time slots.',
+        value: time,
+        date: date,
+        availableSlots: availableDate.timeSlots
+      });
     }
 
     // Check if slot is already booked
@@ -531,7 +580,13 @@ class BookingController {
     });
 
     if (existingBooking) {
-      return respondWithError(res, 'This time slot is already booked', 409);
+      return respondWithError(res, 'Time slot already booked', 409, {
+        field: 'time',
+        message: 'This time slot is already booked by another customer. Please select a different time.',
+        value: time,
+        date: date,
+        bookingReference: existingBooking.bookingReference
+      });
     }
 
     // Create booking with simple structure
