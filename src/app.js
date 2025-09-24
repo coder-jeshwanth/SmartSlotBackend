@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
@@ -20,6 +19,7 @@ const {
   errorLogger,
   rateLimitHandler 
 } = require('./middleware/errorHandler');
+const corsMiddleware = require('./middleware/cors');
 const { sanitizeInput } = require('./middleware/validation');
 
 // Import routes
@@ -46,13 +46,8 @@ class App {
       contentSecurityPolicy: false // Disable CSP for API
     }));
 
-    // CORS configuration
-    this.app.use(cors({
-      origin: config.cors.origin,
-      credentials: config.cors.credentials,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-    }));
+    // CORS configuration with custom middleware
+    this.app.use(corsMiddleware);
 
     // Request timeout
     this.app.use(timeoutHandler);
