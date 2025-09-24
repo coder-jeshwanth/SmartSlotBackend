@@ -45,7 +45,22 @@ const config = {
   bcrypt: {
     saltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12
   },
-  
+
+  // Email Configuration
+  email: {
+    smtp: {
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER || 'preethijawaiy@gmail.com',
+        pass: process.env.EMAIL_APP_PASSWORD || 'asiq lbqu disk uosw'
+      }
+    },
+    from: process.env.EMAIL_FROM || 'preethijawaiy@gmail.com',
+    adminEmail: process.env.ADMIN_EMAIL || 'preethijawaiy@gmail.com'
+  },
+
   // API Configuration
   api: {
     version: process.env.API_VERSION || 'v1',

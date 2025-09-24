@@ -27,6 +27,7 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const customerRoutes = require('./routes/customer');
 const bookingRoutes = require('./routes/booking');
+const emailRoutes = require('./routes/email');
 
 class App {
   constructor() {
@@ -183,6 +184,7 @@ class App {
     this.app.use(`${config.api.prefix}/admin`, adminRoutes);
     this.app.use(`${config.api.prefix}/customer`, customerRoutes);
     this.app.use(`${config.api.prefix}/booking`, bookingRoutes);
+    this.app.use(`${config.api.prefix}/email`, emailRoutes);
 
     // API documentation route (placeholder)
     this.app.get('/api/docs', (req, res) => {

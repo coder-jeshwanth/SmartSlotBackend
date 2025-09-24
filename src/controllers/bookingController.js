@@ -4,6 +4,7 @@ const DateUtils = require('../utils/dateUtils');
 const Validators = require('../utils/validators');
 const { respondWithSuccess, respondWithError, respondWithCreated, respondWithUpdated, formatBookingResponse } = require('../utils/responseHelper');
 const { asyncHandler } = require('../middleware/errorHandler');
+const emailService = require('../utils/emailService');
 
 class BookingController {
   /**
@@ -68,6 +69,11 @@ class BookingController {
     });
 
     await booking.save();
+
+    // Send confirmation emails (don't wait for completion to avoid blocking response)
+    emailService.sendBookingEmails(booking).catch(error => {
+      console.error('Failed to send booking emails:', error);
+    });
 
     respondWithCreated(res, formatBookingResponse(booking), 'Booking created successfully');
   });
@@ -544,6 +550,11 @@ class BookingController {
     });
 
     await booking.save();
+
+    // Send confirmation emails (don't wait for completion to avoid blocking response)
+    emailService.sendBookingEmails(booking).catch(error => {
+      console.error('Failed to send booking emails:', error);
+    });
 
     // Format response
     const response = {
