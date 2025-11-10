@@ -54,7 +54,7 @@ const config = {
       secure: false,
       auth: {
         user: process.env.EMAIL_USER || 'preethijawaiy@gmail.com',
-        pass: process.env.EMAIL_APP_PASSWORD || 'asiq lbqu disk uosw'
+        pass: process.env.EMAIL_APP_PASSWORD || 'tpzd jmho emrk kxvb'
       }
     },
     from: process.env.EMAIL_FROM || 'preethijawaiy@gmail.com',
